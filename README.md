@@ -55,3 +55,7 @@ with x and y axis ticks.
 
 Also the pictures are of ***x:wind***; the program will also plot **y:** windspeed,drag force, drag coef **x:** time *in **x:Time*** mode.
 
+## Number input
+Users will need to input the surface area of the car innorder to get drag coefficient:
+On screen keyboard?
+https://pimylifeup.com/raspberry-pi-on-screen-keyboard/
