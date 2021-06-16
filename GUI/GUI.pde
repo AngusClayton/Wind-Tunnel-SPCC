@@ -3,7 +3,7 @@
  * Raspberry Pi Windtunnel Code
  */
 import processing.serial.*;
-boolean debugMode = false; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
+boolean debugMode = True; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
 Serial myPort; 
 
 //colors
@@ -13,9 +13,14 @@ color red = color(255,0,0);
 color blue = color(0,128,255);
 color green = color(0,200,100);
 //constants
-float xDilation = 1;
+float yForceDilation = 30;
+float yWindDilation = 15;
+float yDragCoefficientDilation = 300;
+float xWindDilation = 10;
+
+
 //drag constants
-float surfaceArea = 0.1; //surface area of car m^2
+float surfaceArea = 0.01; //surface area of car m^2
 float p = 1.225; //kg/m^3 density of air
 //customisation of wind controll
 float windAcceleration = 0.02; // m/s/10ms [sorry for horrific units]
@@ -23,7 +28,8 @@ float maxWindSpeed = 20; // m/s
 
 //file writer 
 PrintWriter output;
-
+//surface area input:
+String surfText ="0.01";
 
 //operation mode [used for different functions to plot different things (see void draw())]
 String opMode = "NONE";
@@ -87,27 +93,34 @@ float getForceReading(float x,float t)
   }
   else {
     String bytearray[] = {};
-    boolean newData = false;
-    while (myPort.available() > 0) 
+    int loops = 0; //stop if more than 10 letters; stops hanging / errors
+    if (myPort.available() > 0) 
     {
       char latestChar = char(myPort.read());
+      //wait until start character send "S"
       while (latestChar != 83) {latestChar = char(myPort.read());}
-      print(latestChar);
-      while (latestChar != 69)
+      //wait until other character:
+      while (latestChar == 83) {latestChar = char(myPort.read());}
+      //loop until end character ("E") or until 10 letters.
+      while (latestChar != 69 && loops < 10)
       {
         bytearray = append(bytearray,str(latestChar));
         //print(str(latestChar));
         latestChar = char(myPort.read());
+        loops++;
       }
     
     }
-    
+    //join array and print force
     String byteArrayJoin = join(bytearray,"");
-    if (byteArrayJoin.length() > 1)
+    if (1<byteArrayJoin.length() && byteArrayJoin.length() <5) //stop wrong reading from getting through.
     {
+      forceGlobal = float(byteArrayJoin);
+      /*
       print("FORCE:");
       print(byteArrayJoin);
       print("\n");
+      */
     }
     
 
@@ -115,7 +128,21 @@ float getForceReading(float x,float t)
   }
   return forceGlobal;
 }
-
+void keyPressed() { //used to enter car area.
+//this funciton changes the surface area value
+  if (true)//can add mouse over condition if needed; didn't add due to touchscreen.
+  {
+    if (key == 8){surfText = "";}//backspace
+    if (key >47 && key<59){surfText+=str(key - 48);}
+    if (key==46){surfText += ".";}
+    /* //debug
+    print(surfText);
+    print(";");
+    print(surfaceArea);print("*\n");
+    */
+    surfaceArea = float(surfText);
+  }
+}
 // calculate drag coefficient
 float dragCoefficient(float windSpeed, float force)
 {
@@ -126,6 +153,8 @@ float dragCoefficient(float windSpeed, float force)
 }
 
 //===== show readout:
+int readoutYShift = 0; //shifts readout screen by y.
+int readoutXShift = 0;
 void readout(float windSpeed, float time, float force) 
 {
   /*
@@ -139,31 +168,31 @@ void readout(float windSpeed, float time, float force)
   
   // clear screen area
   stroke(black);
-  fill(black);
-  rect(625,395,155,60);
+  fill(white);
+  rect(500+readoutXShift,420+readoutYShift,300,50);
   // windspeed
   fill(blue);
   textSize(16);
-  String WindSpeedText = "Windspeed: " + str(round(windSpeed*10)/10) + "m/s";
-  text(WindSpeedText,630,450);
+  String WindSpeedText = "Windspeed: " + nf(windSpeed,2,2) + "m/s";
+  text(WindSpeedText,520+readoutXShift,440+readoutYShift);
   //drag force
   fill(red);
-  String DragText = "Drag: " + str(round(force*10)/10) + "N";
-  text(DragText,630,430);
+  String DragText = "Drag: " + nf(force,1,2) + "N";
+  text(DragText,520+readoutXShift,460+readoutYShift);
   
   //calculate drag coefficient
   float cd = dragCoefficient(windSpeed,force);
   //display drag coefficient
   fill(green);
-  String coefText = "Coef: 0." + str(round(cd*100));
-  text(coefText,630,410);
+  String coefText = "Coef: " + nf(cd,1,2);
+  text(coefText,650+readoutXShift,460+readoutYShift);
   
 }
 
 //======== mouse clicked function; handels any buttons
 void mouseClicked()
 {
-    if (overRect(10,15,60,40)) {
+    if (overRect(10,420,80,50)) {
     print("Starting Wind Testing; Time vs (Windspeed,Force)\n");
     opMode = "TIME";
     //insert headers into file
@@ -171,7 +200,7 @@ void mouseClicked()
     recordData("Time",headers); 
     }
     
-    if (overRect(10,65,60,40))
+    if (overRect(100,420,80,50))
     {
       print("Started Testing; Windspeed vs (Force, Drag Coefficient)\n");
       opMode = "SPEED";
@@ -195,20 +224,22 @@ void setup() {
   }
   //====== Main Graph Screen
   fill(white);
-  rect(85,15,700,450);
+  rect(10,15,780,400);
   //====== Buttons
   //time versus wind speed and force.
-  rect(10,15,60,40);
+  rect(10,420,80,50);
   fill(black);
   textSize(16);
-  text("x:TIME",14,42);
+  text("x:TIME",20,455);
   
   //wind speed vs force vs drag.
   fill(white);
-  rect(10,65,60,40);
+  rect(100,420,80,50);
   fill(black);
   textSize(16);
-  text("x:WIND",14,82);
+  text("x:WIND",110,455);
+  
+
   
   //create writer for file output:
   output = createWriter("windData.csv"); 
@@ -219,7 +250,22 @@ void setup() {
 float time = 0; 
 float windSpeed = 0;
 
+int yAxisPosition = 415; 
+int xAxisPosition = 10;
 void draw() { 
+    //area text box: #!! NEEDS TO BE EDITABLE !!!
+  fill(white);
+  rect(190,420,80,50);
+  textSize(16);
+  fill(red);
+  text("A:",200,455);
+  fill(black);
+  text(surfText,210,455);
+  
+  
+  
+  
+  
   if (opMode == "TIME")
   {
     //increase wind speed at rate below till maxWindSpeed
@@ -229,10 +275,10 @@ void draw() {
     setWindSpeed(windSpeed); //tell arduino new windspeed
     
     //get xy coordinates to plot.
-    float xGraph = 7*(time)+85;
-    float yFGraph = 460-30*getForceReading(windSpeed,time); //drag force
-    float yWGraph = 460-15*windSpeed; //windspeed
-    float yCgraph = 430 - 300*dragCoefficient(windSpeed,getForceReading(windSpeed,time)); //coefficient
+    float xGraph = 7*(time)+xAxisPosition;
+    float yFGraph = yAxisPosition-yForceDilation*getForceReading(windSpeed,time); //drag force
+    float yWGraph = yAxisPosition-yWindDilation*windSpeed; //windspeed
+    float yCgraph = yAxisPosition - yDragCoefficientDilation*dragCoefficient(windSpeed,getForceReading(windSpeed,time)); //coefficient
     
     //send data to file:
     String recordData[] = {str(yFGraph),str(yWGraph),str(yCgraph)};
@@ -267,9 +313,9 @@ void draw() {
   {
     if (windSpeed < maxWindSpeed) {windSpeed += windAcceleration;}
     //calculate xy plot position
-    float xGraph = 30*windSpeed+85;
-    float yFGraph = 460-30*getForceReading(windSpeed,time);
-    float yCgraph = 430 - 300*dragCoefficient(windSpeed,getForceReading(windSpeed,time));
+    float xGraph = 30*windSpeed+xAxisPosition;
+    float yFGraph = yAxisPosition-yForceDilation*getForceReading(windSpeed,time);
+    float yCgraph = yAxisPosition - yDragCoefficientDilation*dragCoefficient(windSpeed,getForceReading(windSpeed,time));
     
     //send data to file:
     String recordData[] = {str(yFGraph),str(yCgraph)};

@@ -12,10 +12,8 @@ Arduino used for testing is a Nano.
 
 # To do [16/6/2021]
 
-- Fix UI [as detailed below]
-- test
-- add ability to enter frontal surface area of car into program; to calculate drag coef.
 - delete file/create a new file for each run.
+- make clear graph button.
 
 # Calibration of force sensor
 
@@ -39,19 +37,7 @@ No Load: Reads 60
 
 # GUI LAYOUT
 
-Currently gui is a bit of a mess;
-
-![currentUI](docsImg/currentUI.png)
-
-The x-axis (i.e line y=0) is different for drag force,windspeed and coefficient *Need to fix*
-
-Want UI to look more like:
-
-![currentUI](docsImg/uiIdea.png)
-
-with x and y axis ticks.
-
-Also the pictures are of ***x:wind***; the program will also plot **y:** windspeed,drag force, drag coef **x:** time *in **x:Time*** mode.
+Want to add x-axis ticks.
 
 ## Number input
 Users will need to input the surface area of the car innorder to get drag coefficient:
