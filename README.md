@@ -10,10 +10,19 @@ The Arduino sets the windspeed based on received value from raspberry pi (m/s); 
 
 Arduino used for testing is a Nano.
 
+The user can set the surface area with keyboard; (just type, backspace reset to zero.)
+
+![uiv2](docsImg/uiv2.png)
+
+
+
 # To do [16/6/2021]
 
 - delete file/create a new file for each run.
-- add axis ticks.
+
+  - Perhaps on clear button creates new file.
+
+  
 
 # Calibration of force sensor
 
@@ -35,11 +44,9 @@ No Load: Reads 60
 
 `FORCE = READOUT*0.0055 - 0.33`
 
-# GUI LAYOUT
 
-Want to add x-axis ticks.
 
 ## Number input
-Users will need to input the surface area of the car innorder to get drag coefficient:
+Users will need to input the surface area of the car in order to get drag coefficient:
 On screen keyboard?
 https://pimylifeup.com/raspberry-pi-on-screen-keyboard/

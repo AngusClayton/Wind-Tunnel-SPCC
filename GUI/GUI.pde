@@ -12,9 +12,10 @@ color black = color(0,0,0);
 color red = color(255,0,0);
 color blue = color(0,128,255);
 color green = color(0,200,100);
+color gray = color(128,128,128);
 //constants
-float yForceDilation = 30;
-float yWindDilation = 15;
+float yForceDilation = 100;
+float yWindDilation = 20;
 float yDragCoefficientDilation = 100;
 float xWindDilation = 10;
 
@@ -24,7 +25,7 @@ float surfaceArea = 0.01; //surface area of car m^2
 float p = 1.225; //kg/m^3 density of air
 //customisation of wind controll
 float windAcceleration = 0.02; // m/s/10ms [sorry for horrific units]
-float maxWindSpeed = 20; // m/s
+float maxWindSpeed = 18; // m/s
 
 //file writer 
 PrintWriter output;
@@ -89,7 +90,7 @@ float forceGlobal = 0;
 float getForceReading(float x,float t)  
 {
   if (debugMode) {
-  forceGlobal= (x*x)/100 + sin(t); //just some preset stuff rn whilst arduino not done.
+  forceGlobal=  2*sin(t)+2; //just some preset stuff rn whilst arduino not done.
   }
   else {
     String bytearray[] = {};
@@ -169,7 +170,7 @@ void readout(float windSpeed, float time, float force)
   // clear screen area
   stroke(black);
   fill(white);
-  rect(500+readoutXShift,420+readoutYShift,300,50);
+  rect(500+readoutXShift,420+readoutYShift,290,50);
   // windspeed
   fill(blue);
   textSize(16);
@@ -224,10 +225,37 @@ void mouseClicked()
       windSpeed=0;
       //=== set windspeed
       setWindSpeed(0);
+      //redraw ticks
+      drawYAxisTick();
       
       
     }
 }
+//============ y axis ticks
+void drawYAxisTick()
+{
+
+  for (int i=1;i<4;i++) {
+    stroke(gray);
+    
+    line(10,i*100+15,790,i*100+15);
+    //force text)
+    fill(red);
+    text(str(4-i),775,i*100+10);
+    //drag text
+    fill(green);
+    text(str(4-i),755,i*100+10);
+    //wind text:
+    //4 = 30, 0 = 0
+    fill(blue);
+    text(str((4-i)*5),725,i*100+10);
+    
+
+}
+}
+
+
+
 //==== setup
 void setup() {
   print("STARTING\n");
@@ -268,6 +296,9 @@ void setup() {
   //create writer for file output:
   output = createWriter("windData.csv"); 
   
+  //do y axis ticks
+  drawYAxisTick();
+  
   
 }
 // varibles initialised for main draw.
@@ -286,10 +317,23 @@ void draw() {
   fill(black);
   text(surfText,220,455);
   
+  //x-axis ticks
+  //wind mode:
+  if (opMode == "SPEED")
+  {
+    for (int i=1;i<10;i++)
+    {
+      stroke(gray);
+      line(78*i,415,78*i,15);
+      fill(blue);
+      textSize(12);
+      text(str(i*18/7),78*i,415);
+    }
+  }
+  //no ticks in time mode (do we need that?);
   
   
-  
-  
+  //#============== plot function
   if (opMode == "TIME")
   {
     //increase wind speed at rate below till maxWindSpeed
