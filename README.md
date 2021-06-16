@@ -13,7 +13,7 @@ Arduino used for testing is a Nano.
 # To do [16/6/2021]
 
 - delete file/create a new file for each run.
-- make clear graph button.
+- add axis ticks.
 
 # Calibration of force sensor
 

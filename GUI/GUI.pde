@@ -3,7 +3,7 @@
  * Raspberry Pi Windtunnel Code
  */
 import processing.serial.*;
-boolean debugMode = True; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
+boolean debugMode = true; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
 Serial myPort; 
 
 //colors
@@ -15,7 +15,7 @@ color green = color(0,200,100);
 //constants
 float yForceDilation = 30;
 float yWindDilation = 15;
-float yDragCoefficientDilation = 300;
+float yDragCoefficientDilation = 100;
 float xWindDilation = 10;
 
 
@@ -192,6 +192,7 @@ void readout(float windSpeed, float time, float force)
 //======== mouse clicked function; handels any buttons
 void mouseClicked()
 {
+  //=== wind testing mode...
     if (overRect(10,420,80,50)) {
     print("Starting Wind Testing; Time vs (Windspeed,Force)\n");
     opMode = "TIME";
@@ -208,6 +209,22 @@ void mouseClicked()
       //insert headers into file
       String headers[] = {"WindSpeed","Force","Coefficient"};
       recordData("Time",headers);
+      
+    }
+   //=== clear graph
+    //350,420,80,50
+    if (overRect(350,420,80,50))
+    {
+      opMode = "NONE";
+      readout(0,0,0); //set everything to zero
+      //====== Main Graph Screen
+      fill(white);
+      rect(10,15,780,400);
+      time = 0;
+      windSpeed=0;
+      //=== set windspeed
+      setWindSpeed(0);
+      
       
     }
 }
@@ -239,6 +256,13 @@ void setup() {
   textSize(16);
   text("x:WIND",110,455);
   
+  //Clear Graph button
+  fill(white);
+  rect(350,420,80,50);
+  fill(black);
+  textSize(16);
+  text("CLEAR",360,455);
+  
 
   
   //create writer for file output:
@@ -253,14 +277,14 @@ float windSpeed = 0;
 int yAxisPosition = 415; 
 int xAxisPosition = 10;
 void draw() { 
-    //area text box: #!! NEEDS TO BE EDITABLE !!!
+  //surface area text box: #!! NEEDS TO BE EDITABLE !!!
   fill(white);
-  rect(190,420,80,50);
+  rect(190,420,150,50);
   textSize(16);
   fill(red);
   text("A:",200,455);
   fill(black);
-  text(surfText,210,455);
+  text(surfText,220,455);
   
   
   
@@ -312,6 +336,7 @@ void draw() {
   else if (opMode == "SPEED")
   {
     if (windSpeed < maxWindSpeed) {windSpeed += windAcceleration;}
+    else{opMode = "NONE";}
     //calculate xy plot position
     float xGraph = 30*windSpeed+xAxisPosition;
     float yFGraph = yAxisPosition-yForceDilation*getForceReading(windSpeed,time);
