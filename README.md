@@ -10,14 +10,12 @@ The Arduino sets the windspeed based on received value from raspberry pi (m/s); 
 
 Arduino used for testing is a Nano.
 
-# To do [15/6/2021]
+# To do [16/6/2021]
 
 - Fix UI [as detailed below]
 - test
 - add ability to enter frontal surface area of car into program; to calculate drag coef.
 - delete file/create a new file for each run.
-- create Arduino interface functions
-  - i.e. actually make them interface with Arduino.
 
 # Calibration of force sensor
 

@@ -3,7 +3,7 @@
  * Raspberry Pi Windtunnel Code
  */
 import processing.serial.*;
-boolean debugMode = true; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
+boolean debugMode = false; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
 Serial myPort; 
 
 //colors
@@ -49,6 +49,18 @@ void setWindSpeed(float speed) //placeholder function ATM
   print("\n");
   */
   //real:
+  if (!debugMode)
+  {
+    String speedString = str(speed);
+    //write number
+    for (int i = 0; i<speedString.length(); i++)
+    {
+      Byte outputByte = byte(speedString.charAt(i));
+      myPort.write(outputByte); 
+    }
+    //write newline byte
+    myPort.write(10);
+  }
 }
 
 //===== Function that records data to file.
@@ -66,9 +78,42 @@ void recordData(String x,String list[])
 }
 
 /// ======== get force reading from arduino
+float forceGlobal = 0;
+
 float getForceReading(float x,float t)  
 {
-  return (x*x)/100 + sin(t); //just some preset stuff rn whilst arduino not done.
+  if (debugMode) {
+  forceGlobal= (x*x)/100 + sin(t); //just some preset stuff rn whilst arduino not done.
+  }
+  else {
+    String bytearray[] = {};
+    boolean newData = false;
+    while (myPort.available() > 0) 
+    {
+      char latestChar = char(myPort.read());
+      while (latestChar != 83) {latestChar = char(myPort.read());}
+      print(latestChar);
+      while (latestChar != 69)
+      {
+        bytearray = append(bytearray,str(latestChar));
+        //print(str(latestChar));
+        latestChar = char(myPort.read());
+      }
+    
+    }
+    
+    String byteArrayJoin = join(bytearray,"");
+    if (byteArrayJoin.length() > 1)
+    {
+      print("FORCE:");
+      print(byteArrayJoin);
+      print("\n");
+    }
+    
+
+    
+  }
+  return forceGlobal;
 }
 
 // calculate drag coefficient
@@ -137,10 +182,17 @@ void mouseClicked()
       
     }
 }
-
 //==== setup
 void setup() {
+  print("STARTING\n");
   size(800, 480); //Raspberry pi Touchscreen resolution
+  //====== arduino setup
+  if (!debugMode)
+  {
+  String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
+  myPort = new Serial(this, portName, 9600);
+  print(portName);
+  }
   //====== Main Graph Screen
   fill(white);
   rect(85,15,700,450);
@@ -207,7 +259,7 @@ void draw() {
     //stop if time going of axis:
     if (time > 100){opMode = "FINISH";}
     
-    print(time);
+    //print(time);
     delay(10);
   }
   //=========== plot windspeed vs drag force and coefficient
