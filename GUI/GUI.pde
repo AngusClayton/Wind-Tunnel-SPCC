@@ -3,7 +3,7 @@
  * Raspberry Pi Windtunnel Code
  */
 import processing.serial.*;
-boolean debugMode = true; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
+boolean debugMode = false; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
 Serial myPort; 
 
 //colors
