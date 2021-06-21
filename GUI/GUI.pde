@@ -2,8 +2,11 @@
  * 15/6/2021
  * Raspberry Pi Windtunnel Code
  */
+ 
+//In this version, windSpeed it the windspeed we are requesting 
+//have not added actual wind speed yet.
 import processing.serial.*;
-boolean debugMode = false; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
+boolean debugMode = true; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
 Serial myPort; 
 
 //colors
@@ -58,7 +61,7 @@ void setWindSpeed(float speed) //placeholder function ATM
   //real:
   if (!debugMode)
   {
-    String speedString = str(speed);
+    String speedString = str((speed/maxWindSpeed)*255);
     //write number
     for (int i = 0; i<speedString.length(); i++)
     {
@@ -68,6 +71,12 @@ void setWindSpeed(float speed) //placeholder function ATM
     //write newline byte
     myPort.write(10);
   }
+  else{
+  print("PWM:"); 
+  print(str((speed/maxWindSpeed)*255)); 
+  print("\n");
+  windActual = speed;
+}
 }
 
 //===== Function that records data to file.
@@ -86,7 +95,7 @@ void recordData(String x,String list[])
 
 /// ======== get force reading from arduino
 float forceGlobal = 0;
-
+float windActual = 0;
 float getForceReading(float x,float t)  
 {
   if (debugMode) {
@@ -114,9 +123,17 @@ float getForceReading(float x,float t)
     }
     //join array and print force
     String byteArrayJoin = join(bytearray,"");
+    
     if (1<byteArrayJoin.length() && byteArrayJoin.length() <5) //stop wrong reading from getting through.
     {
-      forceGlobal = float(byteArrayJoin);
+      
+      String NewArray[] = split(byteArrayJoin,"B");
+      /*
+       Raw input looks like `S4.05B34.8E` with the number between s and B being the force
+       And the number between B and E being the wind speed (ACTUAL)
+      */
+      forceGlobal = float(NewArray[0]);
+      windActual = float(NewArray[1]); //can be access via global varible.
       /*
       print("FORCE:");
       print(byteArrayJoin);
@@ -307,6 +324,8 @@ float windSpeed = 0;
 
 int yAxisPosition = 415; 
 int xAxisPosition = 10;
+
+float lastWindSpeed = 0;
 void draw() { 
   //surface area text box: #!! NEEDS TO BE EDITABLE !!!
   fill(white);
@@ -340,13 +359,13 @@ void draw() {
     if (windSpeed < maxWindSpeed) {windSpeed += windAcceleration;}
     
     
-    setWindSpeed(windSpeed); //tell arduino new windspeed
+    setWindSpeed(windSpeed); //tell arduino new windspeed [i.e. pwm]
     
     //get xy coordinates to plot.
     float xGraph = 7*(time)+xAxisPosition;
-    float yFGraph = yAxisPosition-yForceDilation*getForceReading(windSpeed,time); //drag force
-    float yWGraph = yAxisPosition-yWindDilation*windSpeed; //windspeed
-    float yCgraph = yAxisPosition - yDragCoefficientDilation*dragCoefficient(windSpeed,getForceReading(windSpeed,time)); //coefficient
+    float yFGraph = yAxisPosition-yForceDilation*getForceReading(windActual,time); //drag force
+    float yWGraph = yAxisPosition-yWindDilation*windActual; //windspeed
+    float yCgraph = yAxisPosition - yDragCoefficientDilation*dragCoefficient(windActual,getForceReading(windSpeed,time)); //coefficient
     
     //send data to file:
     String recordData[] = {str(yFGraph),str(yWGraph),str(yCgraph)};
@@ -365,7 +384,7 @@ void draw() {
     stroke(green);
     rect(xGraph,yCgraph,1,1);
     //write the data in bottom corner
-    readout(windSpeed,time,getForceReading(windSpeed,time));
+    readout(windActual,time,getForceReading(windActual,time));
     
     
     //wait and add onto time.
@@ -381,10 +400,14 @@ void draw() {
   {
     if (windSpeed < maxWindSpeed) {windSpeed += windAcceleration;}
     else{opMode = "NONE";}
+    // only plot windspeed once:
+    if (windActual > lastWindSpeed)
+    {
+      lastWindSpeed = windActual;
     //calculate xy plot position
-    float xGraph = 30*windSpeed+xAxisPosition;
-    float yFGraph = yAxisPosition-yForceDilation*getForceReading(windSpeed,time);
-    float yCgraph = yAxisPosition - yDragCoefficientDilation*dragCoefficient(windSpeed,getForceReading(windSpeed,time));
+    float xGraph = 30*windActual+xAxisPosition;
+    float yFGraph = yAxisPosition-yForceDilation*getForceReading(windActual,time);
+    float yCgraph = yAxisPosition - yDragCoefficientDilation*dragCoefficient(windActual,getForceReading(windSpeed,time));
     
     //send data to file:
     String recordData[] = {str(yFGraph),str(yCgraph)};
@@ -407,6 +430,7 @@ void draw() {
     //add time
     delay(10);
     time += 0.01;
+    }
   }
 
   else {
