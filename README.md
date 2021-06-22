@@ -1,5 +1,9 @@
 # Wind Tunnel
 
+#### Password:
+
+password is `W1nd`
+
 Wind tunnel software for SPCC
 
 Uses a raspberry pi running processing communicating with an Arduino [over USB serial].
