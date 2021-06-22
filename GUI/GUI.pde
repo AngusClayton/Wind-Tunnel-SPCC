@@ -6,7 +6,7 @@
 //In this version, windSpeed it the windspeed we are requesting 
 //have not added actual wind speed yet.
 import processing.serial.*;
-boolean debugMode = true; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
+boolean debugMode = false; //disables all com-port interaction; and replaces arduino-interface functions with placeholders.
 Serial myPort; 
 
 //colors
@@ -124,7 +124,7 @@ float getForceReading(float x,float t)
     //join array and print force
     String byteArrayJoin = join(bytearray,"");
     
-    if (1<byteArrayJoin.length() && byteArrayJoin.length() <5) //stop wrong reading from getting through.
+    if (1<byteArrayJoin.length() && byteArrayJoin.length() <10) //stop wrong reading from getting through.
     {
       
       String NewArray[] = split(byteArrayJoin,"B");
@@ -134,7 +134,11 @@ float getForceReading(float x,float t)
       */
       forceGlobal = float(NewArray[0]);
       windActual = float(NewArray[1]); //can be access via global varible.
+      print("array:");
+      print(join(NewArray,", "));
+      print("\n");
       /*
+      print(
       print("FORCE:");
       print(byteArrayJoin);
       print("\n");
