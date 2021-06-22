@@ -36,7 +36,7 @@ void loop() {
   // read the input on analog pin 0 [Force Reading]
   int sensorValue = analogRead(A0);
   float force = sensorValue * 0.0055 - 0.33; //Convert into newtons *NOTE FORMULA NOT AT ALL ACCURATE*
-  float windSpeed = (analogRead(A1)/1024)*25; 
+  float windSpeed = analogRead(A1)*0.01; //convert analog value between 0 and 10. so only takes up 3 characters when printing.
   // print out the force (RPI will just read serial value; as this is only output arduino gives.)
   Serial.print("S");
   Serial.print(force);
