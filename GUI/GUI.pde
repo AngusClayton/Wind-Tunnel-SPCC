@@ -133,7 +133,10 @@ float getForceReading(float x,float t)
        And the number between B and E being the wind speed (ACTUAL)
       */
       forceGlobal = float(NewArray[0]);
-      windActual = float(NewArray[1]); //can be access via global varible.
+      /* Set actual wind speed
+      Arduino reports value between 0 and 10, representing its analog input 0-1024. 
+      Assuming 100% is 30ms/ we times the input value by 3. */
+      windActual = float(NewArray[1])*3; 
       print("array:");
       print(join(NewArray,", "));
       print("\n");
@@ -329,7 +332,7 @@ float windSpeed = 0;
 int yAxisPosition = 415; 
 int xAxisPosition = 10;
 
-float lastWindSpeed = 0;
+float lastWindSpeed = -1;
 void draw() { 
   //surface area text box: #!! NEEDS TO BE EDITABLE !!!
   fill(white);
@@ -405,9 +408,12 @@ void draw() {
     if (windSpeed < maxWindSpeed) {windSpeed += windAcceleration;}
     else{opMode = "NONE";}
     // only plot windspeed once:
-    if (windActual > lastWindSpeed)
+    //if (true)
+    if (windActual > lastWindSpeed && (windActual < (lastWindSpeed +1)))
     {
       lastWindSpeed = windActual;
+    //set wind speed
+    setWindSpeed(windSpeed);
     //calculate xy plot position
     float xGraph = 30*windActual+xAxisPosition;
     float yFGraph = yAxisPosition-yForceDilation*getForceReading(windActual,time);
@@ -430,16 +436,18 @@ void draw() {
     
     
     //write the data in bottom corner
-    readout(windSpeed,time,getForceReading(windSpeed,time));
+    
     //add time
     delay(10);
     time += 0.01;
     }
+    readout(windActual,time,getForceReading(windActual,time));
   }
 
   else {
     windSpeed = 0;
     time = 0;
+    lastWindSpeed = -1;
   }
 
   
