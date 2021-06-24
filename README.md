@@ -2,7 +2,9 @@
 
 #### Password:
 
-password is `W1nd`
+password for raspbery pi is `W1nd`
+
+### Description:
 
 Wind tunnel software for SPCC
 
@@ -20,19 +22,31 @@ The user can set the surface area with keyboard; (just type, backspace reset to 
 
 
 
-# To do [16/6/2021]
+# Files Rundown:
 
-- delete file/create a new file for each run.
+## GUI/GUI.pde
 
-  - Perhaps on clear button creates new file.
+The processing GUI application
 
-  
+## GUI/windData.csv
+
+The recorded data from the last run of program, 
+
+## BASH/autoCopy.sh
+
+Copies windData.csv to a flashdrive.
+
+Currently will just error if there is no flashdrive.
+
+## arduino/arduino.ino
+
+The arduino software that recieves the desired wind speed, and reports back the actual windspeed and drag force.
 
 # Calibration of force sensor
 
 The force sensor reads an analogue value on `A0`0->1023
 
-It is connected to 5V, GND and A0
+It is connected to 3V3, GND and A0
 
 ## Rough calibration
 
@@ -52,5 +66,5 @@ No Load: Reads 60
 
 ## Number input
 Users will need to input the surface area of the car in order to get drag coefficient:
-On screen keyboard?
+On screen keyboard? / External Keyboard
 https://pimylifeup.com/raspberry-pi-on-screen-keyboard/
