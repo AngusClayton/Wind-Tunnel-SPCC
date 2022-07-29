@@ -13,10 +13,15 @@ Physical Windtunnel:
 ![p2](https://github.com/Happypig123123/Wind-Tunnel-SPCC/blob/V2.7/readmeFig/p2.jpg?raw=true)
 ## Hardware configuration
 Raspberry pi 4
+
 7" Raspberry pi touch screen
+
 Analog Force Sensor 
+
 MCP3008 Analog to digital IC
+
 Wind Speed Sensor
+
 Brushless motor and ESC
 
 
