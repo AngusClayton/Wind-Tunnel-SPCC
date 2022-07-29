@@ -1,7 +1,20 @@
 # Wind-Tunnel-SPCC
 Wind tunnel software for SPCC
 
-Unlike main branch / prior version now is entirley raspberry pi operated.
-Uses matplotlib to plot.
-Has support for wind speed sensor.
+Determines drag force of an object over a variety of speeds.
+## G.U.I Screen Shots
+Data output graph
+![Data Output Graph](https://github.com/Happypig123123/Wind-Tunnel-SPCC/readmeFig/Picture1.png?raw=true)
+Physical Windtunnel:
+![p3](https://github.com/Happypig123123/Wind-Tunnel-SPCC/readmeFig/p3.jpg?raw=true)
+
+![p2](https://github.com/Happypig123123/Wind-Tunnel-SPCC/readmeFig/p2.jpg?raw=true)
+## Hardware configuration
+Raspberry pi 4
+7" Raspberry pi touch screen
+Analog Force Sensor 
+MCP3008 Analog to digital IC
+Wind Speed Sensor
+Brushless motor and ESC
+
 
